@@ -273,5 +273,121 @@ EAX = 00000007
 ,EIP = 00000000
 ```
 
-# 3.8
-espの値を
+# 3.9
+- subを使えば、条件分岐命令の条件をすべてかけてしまう
+- cmp命令はsubと異なり、引き算した結果をオペランドにセットしない点が異なる
+
+# 3.10
+
+c
+```
+int abs(int i)
+{
+    if (i >= 0) {
+        return i;
+    } else {
+        return -i;
+    }
+}
+
+int main(void)
+{
+    return abs(-3);
+}
+```
+
+アセンブラ
+```
+C:\Users\tkmr0\github\x86emulator\tolset_p86\exec-if-test>ndisasm -b 32 test.bin
+00000000  E81A000000        call dword 0x1f
+00000005  E9F683FFFF        jmp dword 0xffff8400
+0000000A  55                push ebp
+0000000B  89E5              mov ebp,esp
+0000000D  837D0800          cmp dword [ebp+0x8],byte +0x0
+00000011  7805              js 0x18
+00000013  8B4508            mov eax,[ebp+0x8]
+00000016  EB05              jmp short 0x1d
+00000018  8B4508            mov eax,[ebp+0x8]
+0000001B  F7D8              neg eax
+0000001D  5D                pop ebp
+0000001E  C3                ret
+0000001F  55                push ebp
+00000020  89E5              mov ebp,esp
+00000022  B803000000        mov eax,0x3
+00000027  5D                pop ebp
+00000028  C3                ret
+```
+
+実行結果
+--> あれ、abs関数が実行されていない、、？
+```
+C:\Users\tkmr0\github\x86emulator\ch3>main.exe test.bin
+EIP = 7C00, ESP = 7C00, EBP = 0, Code = E8, StackHead = 1AE8
+EIP = 7C1F, ESP = 7BFC, EBP = 0, Code = 55, StackHead = 7C05
+EIP = 7C20, ESP = 7BF8, EBP = 0, Code = 89, StackHead = 0
+EIP = 7C22, ESP = 7BF8, EBP = 7BF8, Code = B8, StackHead = 0
+EIP = 7C27, ESP = 7BF8, EBP = 7BF8, Code = 5D, StackHead = 0
+EIP = 7C28, ESP = 7BFC, EBP = 0, Code = C3, StackHead = 7C05
+EIP = 7C05, ESP = 7C00, EBP = 0, Code = E9, StackHead = 1AE8
+
+
+end of program.
+
+EAX = 00000003
+,ECX = 00000000
+,EDX = 00000000
+,EBX = 00000000
+,ESP = 00007c00
+,EBP = 00000000
+,ESI = 00000000
+,EDI = 00000000
+,EIP = 00000000
+```
+
+# 3.11
+c
+```
+int sum(int a, int b)
+{
+  int sum;
+  sum = 0;
+  while (a <= b) {
+    sum += a;
+    a++;
+  }
+  return sum;
+}
+
+int main(void)
+{
+    return sum(1, 10);
+}
+```
+アセンブラ
+```
+C:\Users\tkmr0\github\x86emulator\tolset_p86\exec-while-stmt>ndisasm -b 32 test.bin
+00000000  E82A000000        call dword 0x2f
+00000005  E9F683FFFF        jmp dword 0xffff8400
+0000000A  55                push ebp
+0000000B  89E5              mov ebp,esp
+0000000D  83EC10            sub esp,byte +0x10
+00000010  C745FC00000000    mov dword [ebp-0x4],0x0
+00000017  EB09              jmp short 0x22
+00000019  8B4508            mov eax,[ebp+0x8]
+0000001C  0145FC            add [ebp-0x4],eax
+0000001F  FF4508            inc dword [ebp+0x8]
+00000022  8B4508            mov eax,[ebp+0x8]
+00000025  3B450C            cmp eax,[ebp+0xc]
+00000028  7EEF              jng 0x19
+0000002A  8B45FC            mov eax,[ebp-0x4]
+0000002D  C9                leave
+0000002E  C3                ret
+0000002F  55                push ebp
+00000030  89E5              mov ebp,esp
+00000032  6A0A              push byte +0xa
+00000034  6A01              push byte +0x1
+00000036  E8CFFFFFFF        call dword 0xa
+0000003B  83C408            add esp,byte +0x8
+0000003E  C9                leave
+0000003F  C3                ret
+```

@@ -5,6 +5,11 @@
 
 #include "emulator.h"
 
+#define CARRY_FLAG (1)
+#define ZERO_FLAG (1 << 6)
+#define SIGN_FLAG (1 << 7)
+#define OVERFLOW_FLAG (1 << 11)
+
 
 /* memory配列の指定した番地から8ビットの値を取得する */
 uint32_t get_code8(Emulator* emu, int index);
@@ -41,5 +46,23 @@ void push32(Emulator* emu, uint32_t value);
 
 /* スタックから値をpopする */
 uint32_t pop32(Emulator* emu);
+
+/**
+ * 減算の結果に応じてeflagsのフラグを更新する
+ * sub v1, v2
+ */
+void update_eflags_sub(Emulator* emu, uint32_t v1, uint32_t v2, uint64_t result);
+
+/* EFLAGの各フラグ設定用関数 */
+void set_carry(Emulator* emu, int is_carry);
+void set_zero(Emulator* emu, int is_zero);
+void set_sign(Emulator* emu, int is_sign);
+void set_overflow(Emulator* emu, int is_overflow);
+
+/* EFLAGの各フラグ取得用関数 */
+int32_t is_carry(Emulator* emu);
+int32_t is_zero(Emulator* emu);
+int32_t is_sign(Emulator* emu);
+int32_t is_overflow(Emulator* emu);
 
 #endif
