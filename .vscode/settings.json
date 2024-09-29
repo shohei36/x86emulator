@@ -1,0 +1,9 @@
+{
+    "C_Cpp.errorSquiggles": "disabled",
+    "files.associations": {
+        "instruction.h": "c",
+        "emulator_function.h": "c",
+        "emulator.h": "c",
+        "modrm.h": "c"
+    }
+}
