@@ -268,6 +268,13 @@ static void jle(Emulator* emu)
     emu->eip += (diff + 2);
 }
 
+static void jg(Emulator* emu)
+{
+    int diff = !is_zero(emu) && (is_sign(emu) == is_overflow(emu))
+               ? get_sign_code8(emu, 1) : 0;
+    emu->eip += (diff + 2); 
+}
+
 void init_instructions(void)
 {
     int i;
@@ -293,10 +300,11 @@ void init_instructions(void)
     instructions[0x73] = jnc;
     instructions[0x74] = jz;
     instructions[0x75] = jnz;
-    instructions[0x76] = js;
-    instructions[0x77] = jns;
-    instructions[0x78] = jl;
-    instructions[0x79] = jle;
+    instructions[0x78] = js;
+    instructions[0x79] = jns;
+    instructions[0x7C] = jl;
+    instructions[0x7E] = jle;
+    instructions[0x7F] = jg;
 
     instructions[0x83] = code_83;
     instructions[0x89] = mov_rm32_r32;

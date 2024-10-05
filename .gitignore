@@ -1,3 +1,4 @@
 tolset_p86
 *.o
 *.exe
+*.bin

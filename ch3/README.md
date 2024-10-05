@@ -391,3 +391,63 @@ C:\Users\tkmr0\github\x86emulator\tolset_p86\exec-while-stmt>ndisasm -b 32 test.
 0000003E  C9                leave
 0000003F  C3                ret
 ```
+
+jg を実装してみる
+実行したいプログラムは以下
+```
+int sum(int a, int b)
+{
+    int sum = 0;
+    goto cond;
+loop:
+    sum += a;
+    a++;
+cond:
+    if (a <= b)
+    {
+        goto loop;
+    }
+    return sum;
+}
+```
+
+アセンブル結果
+```
+C:\Users\tkmr0\github\x86emulator\tolset_p86\exec-while-stmt>ndisasm -b 32 test2.bin
+00000000  E82C000000        call dword 0x31
+00000005  E9F683FFFF        jmp dword 0xffff8400
+0000000A  55                push ebp
+0000000B  89E5              mov ebp,esp
+0000000D  83EC10            sub esp,byte +0x10
+00000010  C745FC00000000    mov dword [ebp-0x4],0x0
+00000017  EB09              jmp short 0x22
+00000019  8B4508            mov eax,[ebp+0x8]
+0000001C  0145FC            add [ebp-0x4],eax
+0000001F  FF4508            inc dword [ebp+0x8]
+00000022  8B4508            mov eax,[ebp+0x8]
+00000025  3B450C            cmp eax,[ebp+0xc]
+00000028  7F02              jg 0x2c
+0000002A  EBED              jmp short 0x19
+0000002C  8B45FC            mov eax,[ebp-0x4]
+0000002F  C9                leave
+00000030  C3                ret
+00000031  55                push ebp
+00000032  89E5              mov ebp,esp
+00000034  6A0A              push byte +0xa
+00000036  6A01              push byte +0x1
+00000038  E8CDFFFFFF        call dword 0xa
+0000003D  83C408            add esp,byte +0x8
+00000040  C9                leave
+00000041  C3                ret
+```
+jg こんなんでいいのかな
+```
+static void jg(Emulator* emu)
+{
+    int diff = !is_zero(emu) && (is_sign(emu) == is_overflow(emu))
+               ? get_sign_code8(emu, 1) : 0;
+    emu->eip += (diff + 2); 
+}
+```
+
+# 3.12
