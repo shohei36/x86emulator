@@ -69,9 +69,38 @@ static void destroy_emu(Emulator* emu)
     free(emu);
 }
 
+int opt_remove_at(int argc, char* argv[], int index)
+{
+    if (index < 0 || argc <= index) {
+        return argc;
+    } else {
+        int i = index;
+        for (; i < argc - 1; i++)
+        {
+            argv[i] = argv[i + 1];
+        }
+        argv[i] = NULL;
+        return argc - 1;
+    }
+}
+
 int main(int argc, char* argv[])
 {
     Emulator* emu;
+    int i;
+    int quiet = 0;
+
+    i = 1;
+    while (i < argc)
+    {
+        if (strcmp(argv[i], "-q") == 0)
+        {
+            quiet = 1;
+            argc = opt_remove_at(argc, argv, i);
+        } else {
+            i++;
+        } 
+    }
 
     if (argc != 2)
     {
@@ -92,8 +121,9 @@ int main(int argc, char* argv[])
     {
         uint8_t code = get_code8(emu, 0);
         // 現在のプログラムカウンタと実行されるバイナリを出力する
-        printf("EIP = %X, ESP = %X, EBP = %X, Code = %02X, StackHead = %X\n", emu->eip, emu->registers[ESP], emu->registers[EBP], code, get_memory32(emu, emu->registers[ESP]));
-
+        if (!quiet) { 
+            printf("EIP = %X, ESP = %X, EBP = %X, Code = %02X, StackHead = %X\n", emu->eip, emu->registers[ESP], emu->registers[EBP], code, get_memory32(emu, emu->registers[ESP]));
+        }
         if (instructions[code] == NULL)
         {
             // 実装されていない命令が来たらVMを終了する

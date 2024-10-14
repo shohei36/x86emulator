@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "${workspaceFolder}\\ch3\\${fileBasenameNoExtension}",
             "args": [
-                "test.bin"
+                "select.bin"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

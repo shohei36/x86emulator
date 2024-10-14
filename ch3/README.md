@@ -451,3 +451,93 @@ static void jg(Emulator* emu)
 ```
 
 # 3.12
+
+assemble
+```
+BITS 33
+    org 0x7c00
+start:
+    mov edx, 0x03f8
+mainloop:
+    mov al, '>'    ; プロンプトを表示
+    out dx, al
+input:
+    in al, dx       ; 1文字入力
+    cmp al, 'h'
+    je puthello     ; hならhelloを表示
+    cmp al, 'w'
+    je putworld     ; wならworldを表示
+    cmp al, 'q'
+    je fin          ; qなら終了
+    jmp input       ; それ以外なら再入力
+puthello:
+    mov esi, msghello
+    call puts
+    jmp mainloop
+putworld:
+    mov esi, msgworld
+    call puts
+    jmp mainloop
+fin:
+    jmp 0
+
+; esiに設定された文字列を表示するサブルーチン
+puts:
+    mov al, [esi]
+    inc esi
+    cmp al, 0
+    je putsend
+    out dx, al
+    jmp puts
+putsend:
+    ret
+
+msghello:
+    db "hello", 0x0d, 0x0a, 0
+msgworld:
+    db "world", 0x0d, 0x0a, 0
+```
+
+dis assemble
+```
+C:\Users\tkmr0\github\x86emulator\ch3>ndisasm -b 32 select.bin
+00000000  BAF8030000        mov edx,0x3f8
+00000005  B03E              mov al,0x3e
+00000007  EE                out dx,al
+00000008  EC                in al,dx
+00000009  3C68              cmp al,0x68
+0000000B  740A              jz 0x17
+0000000D  3C77              cmp al,0x77
+0000000F  7412              jz 0x23
+00000011  3C71              cmp al,0x71
+00000013  741A              jz 0x2f
+00000015  EBF1              jmp short 0x8
+00000017  BE3F7C0000        mov esi,0x7c3f
+0000001C  E813000000        call dword 0x34
+00000021  EBE2              jmp short 0x5
+00000023  BE477C0000        mov esi,0x7c47
+00000028  E807000000        call dword 0x34
+0000002D  EBD6              jmp short 0x5
+0000002F  E9CC83FFFF        jmp dword 0xffff8400
+00000034  8A06              mov al,[esi]
+00000036  46                inc esi
+00000037  3C00              cmp al,0x0
+00000039  7403              jz 0x3e
+0000003B  EE                out dx,al
+0000003C  EBF6              jmp short 0x34
+0000003E  C3                ret
+0000003F  68656C6C6F        push dword 0x6f6c6c65
+00000044  0D0A00776F        or eax,0x6f77000a
+00000049  726C              jc 0xb7
+0000004B  64                fs
+0000004C  0D                db 0x0d
+0000004D  0A00              or al,[eax]
+```
+
+汎用レジスタの部位
+https://qiita.com/Ll_e_ki/items/fd098cb6d1b6390a76e7#%E6%B1%8E%E7%94%A8%E3%83%AC%E3%82%B8%E3%82%B9%E3%82%BF%E3%81%AE%E9%83%A8%E4%BD%8D
+```
+|        EAX        | 32bit
+          |   AX    | 16bit
+          | AH | AL | 8bit
+```

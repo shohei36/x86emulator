@@ -4,6 +4,7 @@
         "instruction.h": "c",
         "emulator_function.h": "c",
         "emulator.h": "c",
-        "modrm.h": "c"
+        "modrm.h": "c",
+        "io.h": "c"
     }
 }

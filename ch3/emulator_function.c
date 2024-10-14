@@ -173,3 +173,24 @@ int is_overflow(Emulator* emu)
     return (emu->eflags & OVERFLOW_FLAG) != 0;
 }
 
+uint8_t get_register8(Emulator* emu, int index)
+{
+    if (index < 4) {
+        // al,cl,dl,bl
+        return emu->registers[index] & 0xff;
+    } else {
+        // ah,ch,dh,bh
+        return (emu->registers[index - 4] >> 8) & 0xff;
+    }
+}
+
+void set_register8(Emulator* emu, int index, uint8_t value)
+{
+    if (index < 4) {
+        uint32_t r = emu->registers[index] & 0xffffff00;
+        emu->registers[index] = r | (uint32_t)value;
+    } else {
+        uint32_t r = emu->registers[index - 4] & 0xffff00ff;
+        emu->registers[index - 4] = r | ((uint32_t)value << 8); 
+    }
+}
